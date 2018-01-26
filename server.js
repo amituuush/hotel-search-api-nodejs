@@ -2,39 +2,52 @@ const express = require('express');
 const app = express();
 const rp = require('request-promise');
 
-function setOptionsUri(provider) {
-  var options = {
-    uri: `http://localhost:9000/scrapers/${provider}`,
-    headers: {
-      'User-Agent': 'Request-Promise'
-    },
-    json: true,
-  };
-  return options;
-}
-
-hotelProviders = ['expedia', 'orbitz', 'priceline', 'travelocity', 'hilton'];
 
 app.get('/hotels/search', function (req, res) {
-  let resultsSum = {
-    results: []
-  };
-  results = [];
 
-  hotelProviders.forEach(provider => {
+  function setOptionsUri(provider) {
+    var options = {
+      uri: `http://localhost:9000/scrapers/${provider}`,
+      headers: { 'User-Agent': 'Request-Promise' },
+      json: true,
+    };
+    return options;
+  }
+
+  const hotelProviders = ['expedia', 'orbitz', 'priceline', 'travelocity', 'hilton'];
+  let data = { results: [] };
+
+  (function next(index) {
+    if (index === hotelProviders.length) { // No items left
+      res.status(200).json(data);
+      return;
+    }
+    let provider = hotelProviders[index];
     rp(setOptionsUri(provider))
       .then(function (response) {
         response.results.forEach(result => {
-          results.push(result);
-          // console.log('result', results.length);
+          data.results.push(result);
         });
-        console.log('stuff', results);
-        res.send(results);
+        next(index + 1);
       })
-      .catch(function (error) {
-        console.log(error);
-      });
-  });
+      .catch(function (error) { console.log(error); });
+  })(0);
+
+
+  // hotelProviders.forEach(provider => {
+  //   rp(setOptionsUri(provider))
+  //     .then(function (response) {
+  //       response.results.forEach(result => {
+  //         resultsSum.results.push(result);
+  //       });
+  //       // console.log('stuff', results);
+  //       // console.log('length', results.length);
+  //     })
+  //     .catch(function (error) { console.log(error); });
+  // });
+  // res.status(200).json(resultsSum);
+
+
 });
 
 app.listen(8000, function () {

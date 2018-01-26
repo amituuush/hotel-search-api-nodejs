@@ -5,7 +5,9 @@ const rp = require('request-promise');
 function setOptionsUri(provider) {
   var options = {
     uri: `http://localhost:9000/scrapers/${provider}`,
-    headers: { 'User-Agent': 'Request-Promise' },
+    headers: {
+      'User-Agent': 'Request-Promise'
+    },
     json: true,
   };
   return options;
@@ -13,28 +15,29 @@ function setOptionsUri(provider) {
 
 hotelProviders = ['expedia', 'orbitz', 'priceline', 'travelocity', 'hilton'];
 
-app.get('/hotels/search', function(req, res) {
-  let resultsSum = { results: [] };
+app.get('/hotels/search', function (req, res) {
+  let resultsSum = {
+    results: []
+  };
   results = [];
 
   hotelProviders.forEach(provider => {
     rp(setOptionsUri(provider))
-      .then(function(response) {
-        response.data.results.forEach(result => {
+      .then(function (response) {
+        response.results.forEach(result => {
           results.push(result);
-          console.log('result', results.length);
+          // console.log('result', results.length);
         });
-        // console.log(results);
+        console.log('stuff', results);
+        res.send(results);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
       });
   });
-  console.log('results', results);
-  res.send(results);
 });
 
-app.listen(8000, function() {
+app.listen(8000, function () {
   console.log('Listening on port 8000!');
 });
 

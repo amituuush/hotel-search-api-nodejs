@@ -1,47 +1,42 @@
 const request = require('request');
+const { BASE_URI } = require('./config');
 
 function HotelProviderSvc() {
-  this._storage = {
-    results: []
-  };
-  this.hotelProviders = ['expedia', 'orbitz', 'priceline', 'travelocity', 'hilton'];
+  this._storage = { results: [] };
+  this._HOTEL_PROVIDERS = ['expedia', 'orbitz', 'priceline', 'travelocity', 'hilton'];
 }
 
 HotelProviderSvc.prototype = {
 
   fetch: function () {
-    const self = this;
-    let promises = this.fetchProviders();
-
-    Promise.all(promises).then((result) => {
-      self.results();
-    });
+    let providerPromises = this.fetchProviders();
+    Promise.all(providerPromises).then((results) => { return this.results(); });
   },
 
   fetchProviders: function () {
     let self = this;
-    return this.hotelProviders.map((provider) => {
-      return new Promise(function (resolve, reject) {
-        request.get(self._setUriOptions(provider), function (err, res, body) {
+    return this._listProviders().map((provider) => {
+      return new Promise((resolve, reject) => {
+        request.get(self._setUriOptions(provider), (err, res, body) => {
           if (err) { reject(err); }
           else {
             self._insert(body.results);
             resolve(body);
           }
         })
-      }).catch(function (err) { console.error('err', err); });
+      }).catch((err) => { console.error('err', err); });
     });
   },
 
   _insert: function (list) {
     if (this._storage.results.length === 0) {
       this._storage.results = list;
-      return;
+    } else {
+      list.forEach(hotel => {
+        const index = this._findInsertionIndex(hotel);
+        if (index) { this._storage.results.splice(index, 0, hotel); }
+      });
     }
-    list.forEach(hotel => {
-      const index = this._findInsertionIndex(hotel);
-      if (index) { this._storage.results.splice(index, 0, hotel); }
-    });
   },
 
   _findInsertionIndex: function (hotel) {
@@ -57,13 +52,23 @@ HotelProviderSvc.prototype = {
     }
   },
 
+  // if (!opts.provider) throw new Error('A provider must be supplied')
+  // {
+  //   uri: `${BASE_URI}/scrapers/${opts.provider}`,
+  //   headers: Object.assigns({ 'User-Agent': 'request' }, opts.headers || {}),
+  //   json: true
+  // }
+
   _setUriOptions: function (provider) {
-    var options = {
-      uri: `http://localhost:9000/scrapers/${provider}`,
+    return {
+      uri: `${BASE_URI}/scrapers/${provider}`,
       headers: { 'User-Agent': 'request' },
       json: true,
     };
-    return options;
+  },
+
+  _listProviders: function () {
+    return this._HOTEL_PROVIDERS;
   },
 
   results: function () { return this._storage; },
@@ -76,16 +81,3 @@ HotelProviderSvc.prototype = {
 };
 
 module.exports = HotelProviderSvc;
-
-/*
-
-[9,8,5,3,1]
-[7,4,2]
-
-if element is greater or equal to current storage el, return current index
-if element is less than, next
-
-if element is less than or equal to current storage el, return current index
-if element is greater than, next
-
-*/

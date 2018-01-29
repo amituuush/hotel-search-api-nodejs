@@ -10,11 +10,6 @@ app.listen(8000, function () {
   console.log('Listening on port 8000!');
 });
 
-// you’ll likely also want to create a few models
-// at least a `Provider` class
-// don’t want to operate with raw JSON in your client
-// that’s a big no-no
-
 // error handling
 // check for null and standard http response codes
 // separation of concerns, don't write code all in one function

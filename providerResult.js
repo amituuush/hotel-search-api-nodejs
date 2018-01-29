@@ -4,20 +4,17 @@ module.exports = {
   insert: function (list) {
     if (this.storage.length === 0) {
       this.storage = list;
-      // console.log(this.storage);
       return;
     }
     list.forEach(el => {
-      // this.storage.push(el);
       const index = this.findInsertionIndex(el);
-      // console.log(index);
       if (index) { this.storage.splice(index, 0, el); }
     });
   },
   results: function () {
     return this.storage;
   },
-  failedProviers: function () {
+  failedProviders: function () {
     return this.failedProviders;
   },
   failed: function (result) {
@@ -30,9 +27,6 @@ module.exports = {
     for (let i = 0; i <= this.storage.length; i++) {
       if (i === this.storage.length) { return i; }
       else if (el.ecstasy >= this.storage[i].ecstasy) {
-        console.log('el', el.ecstasy);
-        console.log('storage', this.storage[i].ecstasy);
-        console.log(i);
         return i;
         break;
       }

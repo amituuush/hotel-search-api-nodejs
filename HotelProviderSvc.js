@@ -8,9 +8,9 @@ function HotelProviderSvc() {
 
 HotelProviderSvc.prototype = {
 
-  fetch: function () {
+  fetch: function (resolve, reject) {
     let providerPromises = this.fetchProviders();
-    Promise.all(providerPromises).then((results) => { return this.results(); });
+    Promise.all(providerPromises).then(resolve, reject);
   },
 
   fetchProviders: function () {

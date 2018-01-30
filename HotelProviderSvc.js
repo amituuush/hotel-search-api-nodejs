@@ -1,3 +1,4 @@
+const axios = require('axios');
 const request = require('request');
 const { BASE_URI } = require('./config');
 
@@ -9,21 +10,23 @@ function HotelProviderSvc() {
 HotelProviderSvc.prototype = {
 
   fetch: function (resolve, reject) {
-    let providerPromises = this.fetchProviders();
+    let providerPromises = this._fetchProviders();
     Promise.all(providerPromises).then(resolve, reject);
   },
 
-  fetchProviders: function () {
+  _fetchProviders: function () {
     let self = this;
     return this._listProviders().map((provider) => {
       return new Promise((resolve, reject) => {
-        request.get(self._setUriOptions(provider), (err, res, body) => {
-          if (err) { reject(err); }
-          else {
+        request(self._setUriOptions(provider), function (err, res, body) {
+          if (body === null || body === undefined) {
+            console.log('body:' body);
+          } else if (res.statusCode === 200) {
             self._insert(body.results);
-            resolve(body);
+            resolve(body.results);
           }
-        })
+          else { reject(res); }
+        });
       }).catch((err) => { console.error('err', err); });
     });
   },
@@ -40,7 +43,6 @@ HotelProviderSvc.prototype = {
   },
 
   _findInsertionIndex: function (hotel) {
-    // binary search (returns index)
     if (!hotel.ecstasy) { return undefined; }
 
     for (let i = 0; i <= this._storage.results.length; i++) {
@@ -51,13 +53,6 @@ HotelProviderSvc.prototype = {
       }
     }
   },
-
-  // if (!opts.provider) throw new Error('A provider must be supplied')
-  // {
-  //   uri: `${BASE_URI}/scrapers/${opts.provider}`,
-  //   headers: Object.assigns({ 'User-Agent': 'request' }, opts.headers || {}),
-  //   json: true
-  // }
 
   _setUriOptions: function (provider) {
     return {
@@ -71,13 +66,7 @@ HotelProviderSvc.prototype = {
     return this._HOTEL_PROVIDERS;
   },
 
-  results: function () { return this._storage; },
-
-  failedProviders: function () { return this._failedProviders; },
-
-  failed: function (result) {
-    this._failedProviders.push(result.providerName);
-  }
+  results: function () { return this._storage; }
 };
 
 module.exports = HotelProviderSvc;

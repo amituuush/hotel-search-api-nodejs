@@ -1,10 +1,10 @@
-const axios = require('axios');
 const request = require('request');
 const { BASE_URI } = require('./config');
 
 function HotelProviderSvc() {
   this._storage = { results: [] };
   this._HOTEL_PROVIDERS = ['expedia', 'orbitz', 'priceline', 'travelocity', 'hilton'];
+  this._failedProviders = [];
 }
 
 HotelProviderSvc.prototype = {
@@ -20,12 +20,14 @@ HotelProviderSvc.prototype = {
       return new Promise((resolve, reject) => {
         request(self._setUriOptions(provider), function (err, res, body) {
           if (body === null || body === undefined) {
-            console.log('body:' body);
           } else if (res.statusCode === 200) {
             self._insert(body.results);
             resolve(body.results);
           }
-          else { reject(res); }
+          else {
+            reject(res);
+            self._failed(res);
+          }
         });
       }).catch((err) => { console.error('err', err); });
     });
@@ -66,7 +68,13 @@ HotelProviderSvc.prototype = {
     return this._HOTEL_PROVIDERS;
   },
 
-  results: function () { return this._storage; }
+  results: function () { return this._storage; },
+
+  failedProviders: function () { return this._failedProviders; },
+
+  _failed: function (res) {
+    this._failedProviders.push(res);
+  }
 };
 
 module.exports = HotelProviderSvc;

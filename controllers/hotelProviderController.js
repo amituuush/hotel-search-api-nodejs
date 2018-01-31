@@ -1,5 +1,4 @@
 const HotelProviderSvc = require('../HotelProviderSvc');
-const request = require('request');
 
 exports.index = function (req, res) {
   const svc = new HotelProviderSvc()

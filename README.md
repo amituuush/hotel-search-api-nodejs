@@ -24,4 +24,4 @@ Once all requests have been resolved, the accumulated `_storage` is sent back to
 
 If additional hotel providers were needed, they would simply need to be added to the `_HOTEL_PROVIDERS` array.
 
-Other improvements that could be made are creating a hotel model (amongst other models) and using a database for persistence to ensure the data the API receives becomes consistent and can be stored. Due to a time constraint and the nature of the instructions, I opted to hold off from implementing a model and database.
+Other improvements that could be made are creating a hotel model (amongst other models) and using a database for persistence to normalize the data and provide a common abstraction for interfacing with hotel or provider data. Due to a time constraint and the nature of the instructions, I opted to hold off from implementing a model and database.

@@ -39,7 +39,7 @@ HotelProviderSvc.prototype = {
     } else {
       list.forEach(hotel => {
         const index = this._findInsertionIndex(hotel);
-        if (index) { this._storage.results.splice(index, 0, hotel); }
+        this._storage.results.splice(index, 0, hotel);
       });
     }
   },

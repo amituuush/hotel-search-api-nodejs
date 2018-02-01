@@ -29,7 +29,7 @@ HotelProviderSvc.prototype = {
             self._failed(res);
           }
         });
-      }).catch((err) => { console.error('err', err); });
+      }).catch((err) => { console.error('err', err) });
     });
   },
 
